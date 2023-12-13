@@ -1,71 +1,52 @@
 <?php
 
-function denseRanking($totalPlayers, $scores, $numGames, $gameScores) {
-    // Urutkan skor secara descending
-    arsort($scores);
+function denseRanking($totalPlayers, $scores, $gameCount, $gitsScores) {
+    rsort($scores);
+    $rankings = array();
+    
 
-    // Buat array untuk menyimpan peringkat masing-masing pemain
-    $ranking = array();
+    for ($i = 0; $i < $totalPlayers; $i++) {
+        $rankings[$i] = -1;
+    }
+    
 
     $currentRank = 1;
-    $prevScore = null;
-
-    foreach ($scores as $score) {
-        if ($score !== $prevScore) {
-            // Jika skor belum ada dalam array peringkat, tambahkan dengan peringkat saat ini
-            $ranking[$score] = $currentRank;
+    $rankings[0] = $currentRank;
+    
+    // Menyusun peringkat untuk setiap pemain
+    for ($i = 1; $i < $totalPlayers; $i++) {
+        if ($scores[$i] < $scores[$i - 1]) {
+            $currentRank++;
         }
-        $currentRank++;
-        $prevScore = $score;
+        $rankings[$i] = $currentRank;
     }
+    
 
-    // Hitung peringkat untuk setiap skor permainan GITS
-    // Hitung peringkat untuk setiap skor permainan GITS
-// Hitung peringkat untuk setiap skor permainan GITS
-$result = array();
-foreach ($gameScores as $gameScore) {
-    if (($ranking[$gameScore]) || isset($ranking[$gameScore]) ) {
-        // Jika skor permainan GITS ada dalam peringkat, tambahkan peringkat ke hasil
-        $result[] = $ranking[$gameScore];
-    } elseif ($gameScore >= $scores) {
-        // Jika skor permainan GITS lebih dari skor permainan terbesar, set peringkat sebagai skor permainan GITS
-        $result[] = $gameScore;
-    } else {
-        // Jika skor permainan GITS tidak ada dalam peringkat dan tidak lebih dari skor permainan terbesar, tambahkan tanda strip
-        $result[] = '';
+    $gitsRankings = array();
+    for ($i = 0; $i < $gameCount; $i++) {
+        $gitsScore = $gitsScores[$i];
+        $index = array_search($gitsScore, $scores);
+        $gitsRankings[] = $rankings[$index];
     }
+    
+
+    return $gitsRankings;
 }
 
 
-
-    return $result;
-}
-
-// Read input for the total number of players
 echo "Masukkan jumlah pemain: ";
-$totalPlayers = intval(trim(readline()));
+$totalPlayers = intval(trim(fgets(STDIN)));
 
-// Read input for the scores
 echo "Masukkan skor pemain (pisahkan dengan spasi): ";
-$inputScores = trim(readline());
-$scores = array_map('intval', explode(' ', $inputScores));
+$scores = array_map('intval', explode(' ', trim(fgets(STDIN))));
 
-// Read input for the number of games
 echo "Masukkan jumlah permainan GITS: ";
-$numGames = intval(trim(readline()));
+$gameCount = intval(trim(fgets(STDIN)));
 
-// Read input for the game scores
 echo "Masukkan skor permainan GITS (pisahkan dengan spasi): ";
-$inputGameScores = trim(readline());
-$gameScores = array_map('intval', explode(' ', $inputGameScores));
+$gitsScores = array_map('intval', explode(' ', trim(fgets(STDIN))));
 
-// Hitung Dense Ranking
-try {
-    $result = denseRanking($totalPlayers, $scores, $numGames, $gameScores);
+$result = denseRanking($totalPlayers, $scores, $gameCount, $gitsScores);
 
-    // Tampilkan hasil
-    echo "Hasil Dense Ranking: " . implode(', ', $result) . "\n";
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
-}
+echo "Hasil peringkat GITS: " . implode(' ', $result) . "\n";
 ?>
